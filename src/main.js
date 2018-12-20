@@ -22,7 +22,7 @@ module.exports.loop = function() {
             let name = roleName + '_' + Game.time;
             let memory = {role: roleName};
 
-            Game.spawns['Spawn1'].spawnCreep(body, name, memory);
+            Game.spawns['Spawn1'].spawnCreep(body, name, {memory});
         }
     }
 
