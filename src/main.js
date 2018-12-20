@@ -26,6 +26,9 @@ module.exports.loop = function() {
             let memory = {role: roleName};
 
             Game.spawns['Spawn1'].spawnCreep(body, name, {memory});
+            if (roleModules[roleName].hasOwnProperty(init)) {
+                roleModules[roleName].init(Game.creeps[name])
+            }
         }
     }
 
