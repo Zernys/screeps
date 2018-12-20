@@ -1,41 +1,44 @@
 const _ = require('lodash');
-const roleModules = {
-    'harvester': require('role.harvester'),
-    'builder': require('role.builder'),
-    'upgrader': require('role.upgrader')
+const roleConstructors = {
+    'harvester': require('harvester'),
+    'builder': require('builder'),
+    'upgrader': require('upgrader')
 };
 
 module.exports.loop = function() {
-
     // Clear destroyed creeps from memory
-    for(var name in Memory.creeps) {
+    for(let name in Memory.creeps) {
         if(!Game.creeps[name]) {
             delete Memory.creeps[name];
         }
     }
 
+    // Create role wrappers for each creep
+    for (let creepName in Game.creeps) {
+        let creep = Game.creeps[creepName];
+        let role = creep.memory.role;
+        creep.role = new roleConstructors[role](creep);
+    }
 
     // Spawn creeps if targets are not met
     const creepCounts = _.countBy(Game.creeps, creep => creep.memory.role);
-
-    for (var roleName in Memory.creepTypes) {
-        if ((!creepCounts.hasOwnProperty(roleName) && Memory.creepTypes[roleName].targetCount > 0) ||
+    for(let roleName in Memory.creepTypes) {
+        if((!creepCounts.hasOwnProperty(roleName) && Memory.creepTypes[roleName].targetCount > 0) ||
             (creepCounts.hasOwnProperty(roleName) && creepCounts[roleName] < Memory.creepTypes[roleName].targetCount)) {
             let body = Memory.creepTypes[roleName].body;
             let name = roleName + '_' + Game.time;
             let memory = {role: roleName};
 
             Game.spawns['Spawn1'].spawnCreep(body, name, {memory});
-            if (roleModules[roleName].hasOwnProperty(init)) {
-                roleModules[roleName].init(Game.creeps[name])
-            }
+            let creep = Game.creeps[name];
+            creep.role = roleConstructors[roleName](creep);
+            creep.role.init();
         }
     }
 
-
-    // Run the creeps
-    for (var creepName in Game.creeps) {
-        var creep = Game.creeps[creepName];
-        roleModules[creep.memory.role].run(creep);
+    // Run tick on all creeps
+    for(creepName in Game.creeps) {
+        let creep = Game.creeps[creepName];
+        creep.role.tick();
     }
 };
