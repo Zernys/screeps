@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const roleModules = {
     'harvester': require('role.harvester'),
+    'builder': require('role.builder'),
     'upgrader': require('role.upgrader')
 };
 
