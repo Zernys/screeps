@@ -26,11 +26,10 @@ module.exports.loop = function() {
         }
     }
 
-    
+
     // Run the creeps
     for (var creepName in Game.creeps) {
         var creep = Game.creeps[creepName];
         roleModules[creep.memory.role].run(creep);
-        }
     }
 }
