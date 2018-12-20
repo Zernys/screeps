@@ -1,4 +1,4 @@
-var harvesterModule = {
+var roleHarvester = {
 
     run: function(creep) {
         if (creep.carry.energy < creep.carryCapacity) {
@@ -22,4 +22,4 @@ var harvesterModule = {
     }
 };
 
-module.exports = harvesterModule;
+module.exports = roleHarvester;
