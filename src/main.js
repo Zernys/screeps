@@ -17,8 +17,8 @@ module.exports.loop = function() {
     // Spawn creeps if targets are not met
     const creepCounts = _.countBy(Game.creeps, creep => creep.memory.role);
 
-    for (var roleName in creepCounts) {
-        if (creepCounts[roleName] < Memory.creepTypes[roleName].targetCount) {
+    for (var roleName in Memory.creepTypes) {
+        if (creepCounts.hasOwnProperty(roleName) && creepCounts[roleName] < Memory.creepTypes[roleName].targetCount) {
             let body = Memory.creepTypes[roleName].body;
             let name = roleName + '_' + Game.time;
             let memory = {role: roleName};
