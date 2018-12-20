@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const roleModules = {
-    'harvester': require('role.harvester')
+    'harvester': require('role.harvester'),
+    'upgrader': require('role.upgrader')
 };
 
 module.exports.loop = function() {
@@ -32,4 +33,4 @@ module.exports.loop = function() {
         var creep = Game.creeps[creepName];
         roleModules[creep.memory.role].run(creep);
     }
-}
+};
