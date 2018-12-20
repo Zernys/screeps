@@ -18,7 +18,7 @@ module.exports.loop = function() {
     const creepCounts = _.countBy(Game.creeps, creep => creep.memory.role);
 
     for (var roleName in Memory.creepTypes) {
-        if ((!creepCounts.hasOwnProperty(roleName) && Memory.creepTypes[roleName] > 0) ||
+        if ((!creepCounts.hasOwnProperty(roleName) && Memory.creepTypes[roleName].targetCount > 0) ||
             (creepCounts.hasOwnProperty(roleName) && creepCounts[roleName] < Memory.creepTypes[roleName].targetCount)) {
             let body = Memory.creepTypes[roleName].body;
             let name = roleName + '_' + Game.time;
