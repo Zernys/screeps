@@ -1,30 +1,30 @@
 const Role = require('role');
 
-const Builder = function(creep) {
+const Repairer = function(creep) {
     this.base = Role;
     this.base(creep);
 };
 
-Builder.prototype = Object.create(Role.prototype);
-Builder.prototype.constructor = Builder;
+Repairer.prototype = Object.create(Role.prototype);
+Repairer.prototype.constructor = Repairer;
 
-Builder.prototype.init = function() {
-    this.creep.memory.mode = 'harvest';
+Repairer.prototype.init = function() {
+  this.creep.memory.mode = 'harvest';
 };
 
-Builder.prototype.tick = function() {
+Repairer.prototype.tick = function() {
     const creep = this.creep;
 
     switch (creep.memory.mode) {
         case 'harvest':
             this.harvest();
             if(creep.carry.energy === creep.carryCapacity) {
-                creep.memory.mode='build';
+                creep.memory.mode='repair';
             }
             break;
 
-        case 'build':
-            let hasWork = this.build();
+        case 'repair':
+            let hasWork = this.repair();
             if(!hasWork) {
                 if(creep.carry.energy < creep.carryCapacity) {
                     creep.memory.mode = 'harvest';
@@ -39,8 +39,8 @@ Builder.prototype.tick = function() {
 
         case 'idle':
             this.idle();
-            if(creep.room.find(FIND_CONSTRUCTION_SITES)) {
-                creep.memory.mode = 'build';
+            if(creep.room.find(FIND_STRUCTURES, {filter: object => object.hits < object.hitsMax})) {
+                creep.memory.mode = 'repair';
             }
             break;
 
@@ -51,13 +51,20 @@ Builder.prototype.tick = function() {
     }
 };
 
-Builder.prototype.build = function() {
-    const creep = this.creep;
-    let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
-    if(targets.length && creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+Repairer.prototype.repair = function() {
+    const targets = creep.room.find(FIND_STRUCTURES, {
+        filter: object => object.hits < object.hitsMax
+    });
+
+    targets.sort((a,b) => a.hits - b.hits);
+
+    if(targets.length > 0) {
+        if(creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(targets[0]);
+        }
     }
+
     return targets.length > 0;
 };
 
-module.exports = Builder;
+module.exports = Repairer;

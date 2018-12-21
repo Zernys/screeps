@@ -1,8 +1,9 @@
 const _ = require('lodash');
 const roleConstructors = {
     'harvester': require('harvester'),
-    'builder': require('builder'),
-    'upgrader': require('upgrader')
+    'repairman': require('repairer'),
+    'upgrader': require('upgrader'),
+    'builder': require('builder')
 };
 
 module.exports.loop = function() {
