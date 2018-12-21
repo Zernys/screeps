@@ -9,35 +9,55 @@ Builder.prototype = Object.create(Role.prototype);
 Builder.prototype.constructor = Builder;
 
 Builder.prototype.init = function() {
-    creep.memory.mode = "harvesting";
+    this.creep.memory.mode = "harvest";
 };
 
 Builder.prototype.tick = function() {
     const creep = this.creep;
 
-    if(creep.memory.building && creep.carry.energy === 0) {
-        creep.memory.building = false;
-    }
-    if(!creep.memory.building && creep.carry.energy === creep.carryCapacity) {
-        creep.memory.building = true;
-    }
-
-    if(creep.memory.building) {
-        let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
-        if(targets.length) {
-            if(creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+    switch (creep.memory.mode) {
+        case 'harvest':
+            this.harvest();
+            if(creep.carry.energy === creep.carryCapacity) {
+                creep.memory.mode='build';
             }
-        } else {
-            creep.moveTo(Game.flags['Idle'], {visualizePathStyle: {stroke: '#00ff00'}});
-        }
+            break;
+
+        case 'build':
+            let hasWork = this.build();
+            if(!hasWork) {
+                if(creep.carry.energy < creep.carryCapacity) {
+                    creep.memory.mode = 'harvest';
+                } else {
+                    creep.memory.mode = 'idle';
+                }
+            }
+            if(creep.carry.energy === 0) {
+                creep.memory.mode = 'harvest'
+            }
+            break;
+
+        case 'idle':
+            this.idle();
+            if(creep.room.find(FIND_CONSTRUCTION_SITES)) {
+                creep.memory.mode = 'build';
+            }
+            break;
+
+        default:
+            console.log(creep.name + ": Unsupported mode " + creep.memory.mode + ", resetting...");
+            creep.memory.mode = 'harvest';
+            break;
     }
-    else {
-        let sources = creep.room.find(FIND_SOURCES);
-        if(creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00'}});
-        }
+};
+
+Builder.prototype.build = function() {
+    const creep = this.creep;
+    let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+    if(targets.length && creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
     }
+    return targets > 0;
 };
 
 module.exports = Builder;
