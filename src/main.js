@@ -32,7 +32,7 @@ module.exports.loop = function() {
 
             if (Game.spawns['Spawn1'].spawnCreep(body, name, {memory}) === OK) {
                 let creep = Game.creeps[name];
-                creep.role = roleConstructors[roleName](creep);
+                creep.role = new roleConstructors[roleName](creep);
                 creep.role.init();
             }
         }
