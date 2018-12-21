@@ -52,6 +52,8 @@ Repairer.prototype.tick = function() {
 };
 
 Repairer.prototype.repair = function() {
+    const creep = this.creep;
+
     const targets = creep.room.find(FIND_STRUCTURES, {
         filter: object => object.hits < object.hitsMax
     });
