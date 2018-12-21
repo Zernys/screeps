@@ -1,5 +1,5 @@
-var _ = require('lodash');
-var roleConstructors = {
+const _ = require('lodash');
+const roleConstructors = {
     'harvester': require('harvester'),
     'repairer': require('repairer'),
     'upgrader': require('upgrader'),
@@ -10,7 +10,8 @@ module.exports.loop = function() {
     // Clear destroyed creeps from memory
     var deadCreeps = Object.keys(Memory.creeps).filter(creepName => !Game.creeps[creepName]);
     var deadPersist, deadNonPersist;
-    [deadPersist, deadNonPersist] = _.partition(deadCreeps, creepName => Memory.creeps[creepName].persistent);
+    [deadPersist, deadNonPersist] = _.partition(deadCreeps, creepName =>
+        Memory.creeps[creepName].persistent && !_.isEmpty(Memory.creeps[creepName].persistent));
     deadNonPersist.forEach(function(creepName) {delete Memory.creeps[creepName]});
 
     // Create role wrappers for each creep
@@ -20,14 +21,15 @@ module.exports.loop = function() {
         creep.role = new roleConstructors[role](creep);
     }
 
-    // Spawn creeps if targets are not met
+    // Spawn creeps if targets are not met. New spawn will inheret persistent memory from previously dead spawns if
+    // role is compatible
     var creepCounts = _.countBy(Game.creeps, creep => creep.memory.role);
     for(var roleName in Memory.creepTypes) {
         if((!creepCounts.hasOwnProperty(roleName) && Memory.creepTypes[roleName].targetCount > 0) ||
             (creepCounts.hasOwnProperty(roleName) && creepCounts[roleName] < Memory.creepTypes[roleName].targetCount)) {
             var body = Memory.creepTypes[roleName].body;
             var name = roleName + '_' + Game.time;
-            var memory = {role: roleName};
+            var memory = {persistent: {}, role: roleName};
 
             if(Game.spawns['Spawn1'].spawnCreep(body, name, {memory}) === OK) {
                 creep = Game.creeps[name];
