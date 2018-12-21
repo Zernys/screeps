@@ -29,10 +29,11 @@ module.exports.loop = function() {
             let name = roleName + '_' + Game.time;
             let memory = {role: roleName};
 
-            Game.spawns['Spawn1'].spawnCreep(body, name, {memory});
-            let creep = Game.creeps[name];
-            creep.role = roleConstructors[roleName](creep);
-            creep.role.init();
+            if (Game.spawns['Spawn1'].spawnCreep(body, name, {memory}) === OK) {
+                let creep = Game.creeps[name];
+                creep.role = roleConstructors[roleName](creep);
+                creep.role.init();
+            }
         }
     }
 
