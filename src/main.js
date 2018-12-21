@@ -8,14 +8,13 @@ const roleConstructors = {
 
 module.exports.loop = function() {
     // Clear destroyed creeps from memory
-    for(let name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-        }
-    }
+    var deadCreeps = Object.keys(Memory.creeps).filter(creepName => !Game.creeps[creepName]);
+    var deadPersist, deadNonPersist;
+    [deadPersist, deadNonPersist] = _.partition(deadCreeps, creepName => Memory.creeps[creepName].persistent);
+    deadNonPersist.forEach(function(creepName) {delete Memory.creeps[creepName]});
 
     // Create role wrappers for each creep
-    for (let creepName in Game.creeps) {
+    for(let creepName in Game.creeps) {
         let creep = Game.creeps[creepName];
         let role = creep.memory.role;
         creep.role = new roleConstructors[role](creep);
@@ -30,9 +29,18 @@ module.exports.loop = function() {
             let name = roleName + '_' + Game.time;
             let memory = {role: roleName};
 
-            if (Game.spawns['Spawn1'].spawnCreep(body, name, {memory}) === OK) {
+            if(Game.spawns['Spawn1'].spawnCreep(body, name, {memory}) === OK) {
                 let creep = Game.creeps[name];
                 creep.role = new roleConstructors[roleName](creep);
+
+                let deadReplaceIndex = deadPersist.findIndex(creepName => Memory.creeps[creepName].role === roleName);
+                if(deadReplaceIndex !== -1) {
+                    let deadCreepName = deadPersist[deadReplaceIndex];
+                    creep.memory.persistent = Memory.creeps[deadCreepName].persistent;
+                    delete Memory.creeps[deadCreepName];
+                    delete deadPersist[deadReplaceIndex];
+                }
+
                 creep.role.init();
             }
             break;
