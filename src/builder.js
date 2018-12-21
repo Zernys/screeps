@@ -57,7 +57,7 @@ Builder.prototype.build = function() {
     if(targets.length && creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
         creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
     }
-    return targets > 0;
+    return targets.length > 0;
 };
 
 module.exports = Builder;

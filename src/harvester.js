@@ -34,7 +34,7 @@ Harvester.prototype.deposit = function() {
             creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
         }
     }
-    return targets > 0;
+    return targets.length > 0;
 };
 
 module.exports = Harvester;
