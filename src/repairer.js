@@ -1,6 +1,6 @@
-const Role = require('role');
+var Role = require('role');
 
-const Repairer = function(creep) {
+var Repairer = function(creep) {
     this.base = Role;
     this.base(creep);
 };
@@ -13,7 +13,7 @@ Repairer.prototype.init = function() {
 };
 
 Repairer.prototype.tick = function() {
-    const creep = this.creep;
+    var creep = this.creep;
 
     switch (creep.memory.mode) {
         case 'harvest':
@@ -24,7 +24,7 @@ Repairer.prototype.tick = function() {
             break;
 
         case 'repair':
-            let hasWork = this.repair();
+            var hasWork = this.repair();
             if(!hasWork) {
                 if(creep.carry.energy < creep.carryCapacity) {
                     creep.memory.mode = 'harvest';
@@ -52,9 +52,9 @@ Repairer.prototype.tick = function() {
 };
 
 Repairer.prototype.repair = function() {
-    const creep = this.creep;
+    var creep = this.creep;
 
-    const targets = creep.room.find(FIND_STRUCTURES, {
+    var targets = creep.room.find(FIND_STRUCTURES, {
         filter: object => object.hits < object.hitsMax
     });
 

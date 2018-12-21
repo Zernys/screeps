@@ -1,6 +1,6 @@
-const Role = require('role');
+var Role = require('role');
 
-const Harvester = function(creep) {
+var Harvester = function(creep) {
     this.base = Role;
     this.base(creep);
 };
@@ -9,7 +9,7 @@ Harvester.prototype = Object.create(Role.prototype);
 Harvester.prototype.constructor = Harvester;
 
 Harvester.prototype.tick = function() {
-    const creep = this.creep;
+    var creep = this.creep;
 
     if(creep.carry.energy < creep.carryCapacity) {
         this.harvest();
@@ -22,9 +22,9 @@ Harvester.prototype.tick = function() {
 };
 
 Harvester.prototype.deposit = function() {
-    const creep = this.creep;
+    var creep = this.creep;
 
-    let targets = creep.room.find(FIND_STRUCTURES, {
+    var targets = creep.room.find(FIND_STRUCTURES, {
         filter: (structure) => {
             return (structure.structureType === STRUCTURE_SPAWN ||
                 structure.structureType === STRUCTURE_EXTENSION) && structure.energy < structure.energyCapacity;

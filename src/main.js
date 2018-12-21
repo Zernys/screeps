@@ -1,5 +1,5 @@
-const _ = require('lodash');
-const roleConstructors = {
+var _ = require('lodash');
+var roleConstructors = {
     'harvester': require('harvester'),
     'repairer': require('repairer'),
     'upgrader': require('upgrader'),
@@ -14,28 +14,29 @@ module.exports.loop = function() {
     deadNonPersist.forEach(function(creepName) {delete Memory.creeps[creepName]});
 
     // Create role wrappers for each creep
-    for(let creepName in Game.creeps) {
-        let creep = Game.creeps[creepName];
-        let role = creep.memory.role;
+    for(var creepName in Game.creeps) {
+        var creep = Game.creeps[creepName];
+        var role = creep.memory.role;
         creep.role = new roleConstructors[role](creep);
     }
 
     // Spawn creeps if targets are not met
-    const creepCounts = _.countBy(Game.creeps, creep => creep.memory.role);
-    for(let roleName in Memory.creepTypes) {
+    var creepCounts = _.countBy(Game.creeps, creep => creep.memory.role);
+    for(var roleName in Memory.creepTypes) {
         if((!creepCounts.hasOwnProperty(roleName) && Memory.creepTypes[roleName].targetCount > 0) ||
             (creepCounts.hasOwnProperty(roleName) && creepCounts[roleName] < Memory.creepTypes[roleName].targetCount)) {
-            let body = Memory.creepTypes[roleName].body;
-            let name = roleName + '_' + Game.time;
-            let memory = {role: roleName};
+            var body = Memory.creepTypes[roleName].body;
+            var name = roleName + '_' + Game.time;
+            var memory = {role: roleName};
 
             if(Game.spawns['Spawn1'].spawnCreep(body, name, {memory}) === OK) {
-                let creep = Game.creeps[name];
+                creep = Game.creeps[name];
                 creep.role = new roleConstructors[roleName](creep);
 
-                let deadReplaceIndex = deadPersist.findIndex(creepName => Memory.creeps[creepName].role === roleName);
+                // noinspection JSReferencingMutableVariableFromClosure
+                var deadReplaceIndex = deadPersist.findIndex(creepName => Memory.creeps[creepName].role === roleName);
                 if(deadReplaceIndex !== -1) {
-                    let deadCreepName = deadPersist[deadReplaceIndex];
+                    var deadCreepName = deadPersist[deadReplaceIndex];
                     creep.memory.persistent = Memory.creeps[deadCreepName].persistent;
                     delete Memory.creeps[deadCreepName];
                     delete deadPersist[deadReplaceIndex];
@@ -49,7 +50,7 @@ module.exports.loop = function() {
 
     // Run tick on all creeps
     for(creepName in Game.creeps) {
-        let creep = Game.creeps[creepName];
+        creep = Game.creeps[creepName];
         creep.role.tick();
     }
 };

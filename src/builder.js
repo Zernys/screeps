@@ -1,6 +1,6 @@
-const Role = require('role');
+var Role = require('role');
 
-const Builder = function(creep) {
+var Builder = function(creep) {
     this.base = Role;
     this.base(creep);
 };
@@ -13,7 +13,7 @@ Builder.prototype.init = function() {
 };
 
 Builder.prototype.tick = function() {
-    const creep = this.creep;
+    var creep = this.creep;
 
     switch (creep.memory.mode) {
         case 'harvest':
@@ -24,7 +24,7 @@ Builder.prototype.tick = function() {
             break;
 
         case 'build':
-            let hasWork = this.build();
+            var hasWork = this.build();
             if(!hasWork) {
                 if(creep.carry.energy < creep.carryCapacity) {
                     creep.memory.mode = 'harvest';
@@ -52,8 +52,8 @@ Builder.prototype.tick = function() {
 };
 
 Builder.prototype.build = function() {
-    const creep = this.creep;
-    let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+    var creep = this.creep;
+    var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
     if(targets.length && creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
         creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
     }
