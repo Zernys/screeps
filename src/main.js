@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const roleConstructors = {
     'harvester': require('harvester'),
-    'repairman': require('repairer'),
+    'repairer': require('repairer'),
     'upgrader': require('upgrader'),
     'builder': require('builder')
 };
@@ -23,7 +23,7 @@ module.exports.loop = function() {
 
     // Spawn creeps if targets are not met
     const creepCounts = _.countBy(Game.creeps, creep => creep.memory.role);
-    for(let roleName in Memory.creepTypes) {
+    for(let roleName in roleConstructors) {
         if((!creepCounts.hasOwnProperty(roleName) && Memory.creepTypes[roleName].targetCount > 0) ||
             (creepCounts.hasOwnProperty(roleName) && creepCounts[roleName] < Memory.creepTypes[roleName].targetCount)) {
             let body = Memory.creepTypes[roleName].body;
