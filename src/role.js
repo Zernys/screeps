@@ -10,7 +10,7 @@ Role.prototype.getRole = function() {
 
 Role.prototype.harvest = function() {
     var creep = this.creep;
-    var harvestNode = creep.Memory.persistent.harvestNode;
+    var harvestNode = creep.memory.persistent.harvestNode;
     harvestNode = harvestNode ? harvestNode : 0;
     var sources = creep.room.find(FIND_SOURCES);
     if(creep.harvest(sources[harvestNode]) === ERR_NOT_IN_RANGE) {
