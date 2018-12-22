@@ -10,10 +10,13 @@ const roleConstructors = {
 module.exports.loop = function() {
     // Clear destroyed creeps from memory
     var deadCreeps = Object.keys(Memory.creeps).filter(creepName => !Game.creeps[creepName]);
-    var deadPersist, deadNonPersist;
-    [deadPersist, deadNonPersist] = _.partition(deadCreeps, creepName =>
-        Memory.creeps[creepName].persistent && !_.isEmpty(Memory.creeps[creepName].persistent));
-    deadNonPersist.forEach(function(creepName) {delete Memory.creeps[creepName]});
+    deadCreeps.forEach(function(creepName) {
+        var creepMem = Memory.creeps[creepName];
+        if(creepMem.persistentMemoryKey) {
+            Memory.persistentMemory[creepMem.role].owner = null;
+        }
+        delete Memory.creeps[creepName];
+    });
 
     // Create role wrappers for each creep
     for(var creepName in Game.creeps) {
@@ -23,7 +26,7 @@ module.exports.loop = function() {
     }
 
     // Raise solider target count if there are enemies in the room
-    enemies = Game.spawns['Spawn1'].room.find(FIND_HOSTILE_CREEPS);
+    var enemies = Game.spawns['Spawn1'].room.find(FIND_HOSTILE_CREEPS);
     if(enemies.length > 0) {
         Memory.creepTypes['solider'].targetCount = 2;
     } else {
@@ -38,7 +41,7 @@ module.exports.loop = function() {
             (creepCounts.hasOwnProperty(roleName) && creepCounts[roleName] < Memory.creepTypes[roleName].targetCount)) {
             var body = Memory.creepTypes[roleName].body;
             var name = roleName + '_' + Game.time;
-            var memory = {persistent: {}, role: roleName};
+            var memory = {persistentMemoryKey: null, role: roleName};
 
             // TODO: Temporary solution for harvester fallback, should be improved
             if(roleName === 'harvester' && creepCounts[roleName] === 0) {
@@ -47,17 +50,16 @@ module.exports.loop = function() {
 
             if(Game.spawns['Spawn1'].spawnCreep(body, name, {memory}) === OK) {
                 creep = Game.creeps[name];
-                creep.role = new roleConstructors[roleName](creep);
 
+                var rolePerMem = Memory.persistentMemory[roleName];
                 // noinspection JSReferencingMutableVariableFromClosure
-                var deadReplaceIndex = deadPersist.findIndex(creepName => Memory.creeps[creepName].role === roleName);
-                if(deadReplaceIndex !== -1) {
-                    var deadCreepName = deadPersist[deadReplaceIndex];
-                    creep.memory.persistent = Memory.creeps[deadCreepName].persistent;
-                    delete Memory.creeps[deadCreepName];
-                    delete deadPersist[deadReplaceIndex];
+                var persistentMemoryKey = Object.keys(rolePerMem).find(key => rolePerMem[key].owner == null);
+                if(persistentMemoryKey) {
+                    creep.persistentMemoryKey = persistentMemoryKey;
+                    rolePerMem[persistentMemoryKey] = creep.name;
                 }
 
+                creep.role = new roleConstructors[roleName](creep);
                 creep.role.init();
             }
             break;
