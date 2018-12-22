@@ -13,7 +13,7 @@ module.exports.loop = function() {
     deadCreeps.forEach(function(creepName) {
         var creepMem = Memory.creeps[creepName];
         if(creepMem.persistentMemoryKey) {
-            Memory.persistentMemory[creepMem.role].owner = null;
+            Memory.persistentMemory[creepMem.role][creepMem.persistentMemoryKey].owner = null;
         }
         delete Memory.creeps[creepName];
     });
