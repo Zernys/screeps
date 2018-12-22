@@ -22,6 +22,12 @@ module.exports.loop = function() {
     for(var creepName in Game.creeps) {
         var creep = Game.creeps[creepName];
         var role = creep.memory.role;
+        var perMemKey = creep.memory.perMemKey;
+        if(perMemKey) {
+            creep.persistentMemory = Memory.persistentMemory[role][perMemKey]
+        } else {
+            creep.persistentMemory = {};
+        }
         creep.role = new roleConstructors[role](creep);
     }
 
@@ -53,10 +59,13 @@ module.exports.loop = function() {
 
                 var rolePerMem = Memory.persistentMemory[roleName];
                 // noinspection JSReferencingMutableVariableFromClosure
-                var persistentMemoryKey = Object.keys(rolePerMem).find(key => rolePerMem[key].owner == null);
-                if(persistentMemoryKey) {
-                    creep.persistentMemoryKey = persistentMemoryKey;
-                    rolePerMem[persistentMemoryKey] = creep.name;
+                perMemKey = Object.keys(rolePerMem).find(key => rolePerMem[key].owner == null);
+                if(perMemKey) {
+                    creep.persistentMemoryKey = perMemKey;
+                    rolePerMem[perMemKey] = creep.name;
+                    creep.persistentMemory = Memory.persistentMemory[roleName][perMemKey];
+                } else {
+                    creep.persistentMemory = {};
                 }
 
                 creep.role = new roleConstructors[roleName](creep);
