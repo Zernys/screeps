@@ -22,7 +22,7 @@ module.exports.loop = function() {
     for(var creepName in Game.creeps) {
         var creep = Game.creeps[creepName];
         var role = creep.memory.role;
-        var perMemKey = creep.memory.perMemKey;
+        var perMemKey = creep.memory.persistentMemoryKey;
         if(perMemKey) {
             creep.persistentMemory = Memory.persistentMemory[role][perMemKey]
         } else {
