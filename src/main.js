@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const roleConstructors = {
+    'solider': require('solider'),
     'harvester': require('harvester'),
     'repairer': require('repairer'),
     'upgrader': require('upgrader'),
@@ -21,10 +22,18 @@ module.exports.loop = function() {
         creep.role = new roleConstructors[role](creep);
     }
 
+    // Raise solider target count if there are enemies in the room
+    enemies = Game.spawns['Spawn1'].room.find(FIND_HOSTILE_CREEPS);
+    if(enemies) {
+        Memory.creepTypes['solider'].targetCount = 2;
+    } else {
+        Memory.creepTypes['solider'].targetCount = 0;
+    }
+
     // Spawn creeps if targets are not met. New spawn will inheret persistent memory from previously dead spawns if
     // role is compatible
     var creepCounts = _.countBy(Game.creeps, creep => creep.memory.role);
-    for(var roleName in Memory.creepTypes) {
+    for(var roleName in roleConstructors) {
         if((!creepCounts.hasOwnProperty(roleName) && Memory.creepTypes[roleName].targetCount > 0) ||
             (creepCounts.hasOwnProperty(roleName) && creepCounts[roleName] < Memory.creepTypes[roleName].targetCount)) {
             var body = Memory.creepTypes[roleName].body;
