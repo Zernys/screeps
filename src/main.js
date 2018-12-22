@@ -62,7 +62,7 @@ module.exports.loop = function() {
                 perMemKey = Object.keys(rolePerMem).find(key => rolePerMem[key].owner == null);
                 if(perMemKey) {
                     creep.persistentMemoryKey = perMemKey;
-                    rolePerMem[perMemKey] = creep.name;
+                    rolePerMem[perMemKey].owner = creep.name;
                     creep.persistentMemory = Memory.persistentMemory[roleName][perMemKey];
                 } else {
                     creep.persistentMemory = {};
