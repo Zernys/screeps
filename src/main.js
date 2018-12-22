@@ -24,7 +24,7 @@ module.exports.loop = function() {
 
     // Raise solider target count if there are enemies in the room
     enemies = Game.spawns['Spawn1'].room.find(FIND_HOSTILE_CREEPS);
-    if(enemies) {
+    if(enemies.length > 0) {
         Memory.creepTypes['solider'].targetCount = 2;
     } else {
         Memory.creepTypes['solider'].targetCount = 0;
