@@ -40,6 +40,11 @@ module.exports.loop = function() {
             var name = roleName + '_' + Game.time;
             var memory = {persistent: {}, role: roleName};
 
+            // TODO: Temporary solution for harvester fallback, should be improved
+            if(roleName === 'harvester' && creepCounts[roleName] === 0) {
+                body = [WORK, WORK, CARRY, MOVE];
+            }
+
             if(Game.spawns['Spawn1'].spawnCreep(body, name, {memory}) === OK) {
                 creep = Game.creeps[name];
                 creep.role = new roleConstructors[roleName](creep);
