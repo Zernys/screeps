@@ -42,7 +42,11 @@ Repairer.prototype.tick = function() {
 
         case 'idle':
             this.idle();
-            if(creep.room.find(FIND_STRUCTURES, {filter: object => object.hits < object.hitsMax})) {
+            if(creep.room.find(FIND_STRUCTURES, {
+                filter: structure => (
+                    structure.hits + this.hpThres <= structure.hitsMax ||
+                    structure.hits <= structure.hitsMax * this.hpFracThres)
+            }).length) {
                 creep.memory.mode = 'repair';
             }
             break;
@@ -54,17 +58,23 @@ Repairer.prototype.tick = function() {
     }
 };
 
+/*The repairer will target the closest structure that is within hpThres of the lowest hp structure in the room and is
+* missing more than hpThres or hpFracThres hp. The repairer will repair this structure until it's either full hp or has
+* 2 * hpThres more hp than the lowest hp structure in the room.*/
 Repairer.prototype.repair = function() {
     var creep = this.creep;
 
+    // Find candidate targets for repair
     var targetCandidates = creep.room.find(FIND_STRUCTURES, {
         filter: structure => (
             structure.hits + this.hpThres <= structure.hitsMax ||
             structure.hits <= structure.hitsMax * this.hpFracThres)
     });
-    
+
+    // Sort from lowest to highest hp
     targetCandidates.sort((a,b) => a.hits - b.hits);
-    
+
+    // Remove target if full hp or 2*hpThres more hp than lowest hp structure, else keep repairing target
     if(creep.memory.repairTargetId) {
         var target = Game.getObjectById(creep.memory.repairTargetId);
         if((targetCandidates.length && target.hits >= targetCandidates[0].hits + 2 * this.hpThres) ||
@@ -75,10 +85,12 @@ Repairer.prototype.repair = function() {
         }
     }
 
+    // If target is cleared, search for closest new target and start repair
     if(!creep.memory.repairTargetId && targetCandidates.length > 0) {
         var minHealth = targetCandidates[0].hits;
-        targetCandidates.filter(targetCandidate => targetCandidate.hits <= minHealth + this.hpThres);
+        targetCandidates = targetCandidates.filter(targetCandidate => targetCandidate.hits <= minHealth + this.hpThres);
 
+        // Attempt to repair all target to check if any is in range
         var repairedTarget = false;
         for(var i=0; i<targetCandidates.length; i++) {
             if(creep.repair(targetCandidates[i]) === OK) {
@@ -88,14 +100,16 @@ Repairer.prototype.repair = function() {
             }
         }
 
+        // Search for a path to the closest target and move towards it, if no target was in range
         if(!repairedTarget) {
             var goals = targetCandidates.map(targetCandidate => ({pos: targetCandidate.pos, range: 3}));
-            var path = PathFinder(creep.pos, goals);
+            var path = PathFinder.search(creep.pos, goals).path;
             creep.moveByPath(path);
         }
     }
 
-    return targetCandidates.length > 0;
+    // Return whether there exists targets to repair
+    return targetCandidates.length > 0 || creep.memory.repairTargetId;
 };
 
 module.exports = Repairer;
