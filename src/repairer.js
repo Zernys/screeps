@@ -103,13 +103,45 @@ Repairer.prototype.repair = function() {
         // Search for a path to the closest target and move towards it, if no target was in range
         if(!repairedTarget) {
             var goals = targetCandidates.map(targetCandidate => ({pos: targetCandidate.pos, range: 3}));
-            var path = PathFinder.search(creep.pos, goals).path;
-            creep.moveByPath(path);
+            var searchResult = PathFinder.search(
+                creep.pos, goals, {plainCost: 2, swampCost: 10, roomCallback: this.getCostMatrix}
+                );
+            creep.moveByPath(searchResult.path);
         }
     }
 
     // Return whether there exists targets to repair
     return targetCandidates.length > 0 || creep.memory.repairTargetId;
+};
+
+// TODO: Move room cost matrix to a more global room scope
+Repairer.prototype.getCostMatrix = function(roomName) {
+    if(Repairer.costMatrix) {
+        return Repairer.costMatrix;
+    }
+
+    var room = Game.rooms[roomName];
+    var costs = new PathFinder.CostMatrix;
+
+    room.find(FIND_STRUCTURES).forEach(function(struct) {
+        if (struct.structureType === STRUCTURE_ROAD) {
+            // Favor roads over plain tiles
+            costs.set(struct.pos.x, struct.pos.y, 1);
+        } else if (struct.structureType !== STRUCTURE_CONTAINER &&
+            (struct.structureType !== STRUCTURE_RAMPART ||
+                !struct.my)) {
+            // Can't walk through non-walkable buildings
+            costs.set(struct.pos.x, struct.pos.y, 0xff);
+        }
+    });
+
+    // Avoid creeps in the room
+    room.find(FIND_CREEPS).forEach(function(creep) {
+        costs.set(creep.pos.x, creep.pos.y, 0xff);
+    });
+
+    Repairer.costMatrix = costs;
+    return costs;
 };
 
 module.exports = Repairer;
