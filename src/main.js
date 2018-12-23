@@ -34,7 +34,7 @@ module.exports.loop = function() {
     }
 
     // Create tower wrappers for each tower
-    var towers = Game.spawns['spawn1'].room.find(FIND_STRUCTURES, {filter: function(structure) {
+    var towers = Game.spawns['Spawn1'].room.find(FIND_STRUCTURES, {filter: function(structure) {
         return (structure.structureType === STRUCTURE_TOWER && tower.my)}});
     for(var tower in towers) {
         // noinspection JSPrimitiveTypeWrapperUsage
