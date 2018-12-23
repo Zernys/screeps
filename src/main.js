@@ -12,7 +12,8 @@ module.exports.loop = function() {
     var deadCreeps = Object.keys(Memory.creeps).filter(creepName => !Game.creeps[creepName]);
     deadCreeps.forEach(function(creepName) {
         var creepMem = Memory.creeps[creepName];
-        if(creepMem.persistentMemoryKey) {
+        if(creepMem.persistentMemoryKey &&
+            Memory.persistentMemory[creepMem.role][creepMem.persistentMemoryKey].owner === creepName) {
             Memory.persistentMemory[creepMem.role][creepMem.persistentMemoryKey].owner = null;
         }
         delete Memory.creeps[creepName];
