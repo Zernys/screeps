@@ -36,7 +36,7 @@ module.exports.loop = function() {
     // Create tower wrappers for each tower
     var towers = Game.spawns['Spawn1'].room.find(FIND_STRUCTURES, {filter: function(structure) {
         return (structure.structureType === STRUCTURE_TOWER && structure.my)}});
-    towers.foreach(function(tower) {
+    towers.forEach(function(tower) {
         tower.operator = new towerConstructor(tower);
     });
 
@@ -90,7 +90,7 @@ module.exports.loop = function() {
     }
 
     // Run tick on all towers
-    towers.foreach(function(tower) {
+    towers.forEach(function(tower) {
         tower.operator.tick();
     });
 };
