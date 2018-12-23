@@ -62,7 +62,7 @@ module.exports.loop = function() {
                 // noinspection JSReferencingMutableVariableFromClosure
                 perMemKey = Object.keys(rolePerMem).find(key => rolePerMem[key].owner == null);
                 if(perMemKey) {
-                    creep.persistentMemoryKey = perMemKey;
+                    creep.memory.persistentMemoryKey = perMemKey;
                     rolePerMem[perMemKey].owner = creep.name;
                     creep.persistentMemory = Memory.persistentMemory[roleName][perMemKey];
                 } else {
