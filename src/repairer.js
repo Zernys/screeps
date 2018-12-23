@@ -12,7 +12,7 @@ Repairer.prototype.constructor = Repairer;
 
 Repairer.prototype.init = function() {
   this.creep.memory.mode = 'harvest';
-  this.creep.memory.repairTarget = null;
+  this.creep.memory.repairTargetId = null;
 };
 
 Repairer.prototype.tick = function() {
@@ -57,35 +57,45 @@ Repairer.prototype.tick = function() {
 Repairer.prototype.repair = function() {
     var creep = this.creep;
 
-    var targets = creep.room.find(FIND_STRUCTURES, {
+    var targetCandidates = creep.room.find(FIND_STRUCTURES, {
         filter: structure => (
             structure.hits + this.hpThres <= structure.hitsMax ||
             structure.hits <= structure.hitsMax * this.hpFracThres)
     });
+    
+    targetCandidates.sort((a,b) => a.hits - b.hits);
+    
+    if(creep.memory.repairTargetId) {
+        var target = Game.getObjectById(creep.memory.repairTargetId);
+        if((targetCandidates.length && target.hits >= targetCandidates[0].hits + 2 * this.hpThres) ||
+            target.hits === target.hitsMax) {
+            creep.memory.repairTargetId = null;
+        } else {
+            creep.repair(target);
+        }
+    }
 
-    targets.sort((a,b) => a.hits - b.hits);
-
-    if(targets.length > 0) {
-
-        var minHealth = targets[0].hits;
-        targets.filter(target => target.hits <= minHealth + this.hpThres);
+    if(!creep.memory.repairTargetId && targetCandidates.length > 0) {
+        var minHealth = targetCandidates[0].hits;
+        targetCandidates.filter(targetCandidate => targetCandidate.hits <= minHealth + this.hpThres);
 
         var repairedTarget = false;
-        for(var i=0; i<targets.length; i++) {
-            if(creep.repair(targets[i]) === OK) {
+        for(var i=0; i<targetCandidates.length; i++) {
+            if(creep.repair(targetCandidates[i]) === OK) {
+                creep.memory.repairTargetId = targetCandidates[i].id;
                 repairedTarget = true;
                 break;
             }
         }
 
         if(!repairedTarget) {
-            var goals = targets.map(target => ({pos: target.pos, range: 3}));
+            var goals = targetCandidates.map(targetCandidate => ({pos: targetCandidate.pos, range: 3}));
             var path = PathFinder(creep.pos, goals);
             creep.moveByPath(path);
         }
     }
 
-    return targets.length > 0;
+    return targetCandidates.length > 0;
 };
 
 module.exports = Repairer;
