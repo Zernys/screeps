@@ -36,10 +36,9 @@ module.exports.loop = function() {
     // Create tower wrappers for each tower
     var towers = Game.spawns['Spawn1'].room.find(FIND_STRUCTURES, {filter: function(structure) {
         return (structure.structureType === STRUCTURE_TOWER && structure.my)}});
-    for(var tower in towers) {
-        // noinspection JSPrimitiveTypeWrapperUsage
+    towers.foreach(function(tower) {
         tower.operator = new towerConstructor(tower);
-    }
+    });
 
     // Raise solider target count if there are enemies in the room
     var enemies = Game.spawns['Spawn1'].room.find(FIND_HOSTILE_CREEPS);
@@ -91,7 +90,7 @@ module.exports.loop = function() {
     }
 
     // Run tick on all towers
-    for(tower in towers) {
+    towers.foreach(function(tower) {
         tower.operator.tick();
-    }
+    });
 };
