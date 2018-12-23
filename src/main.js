@@ -6,6 +6,7 @@ const roleConstructors = {
     'upgrader': require('upgrader'),
     'builder': require('builder')
 };
+const towerConstructor = require('tower');
 
 module.exports.loop = function() {
     // Clear destroyed creeps from memory
@@ -30,6 +31,14 @@ module.exports.loop = function() {
             creep.persistentMemory = {};
         }
         creep.role = new roleConstructors[role](creep);
+    }
+
+    // Create tower wrappers for each tower
+    var towers = Game.spawns['spawn1'].room.find(FIND_STRUCTURES, {filter: function(structure) {
+        return (structure.structureType === STRUCTURE_TOWER && tower.my)}});
+    for(var tower in towers) {
+        // noinspection JSPrimitiveTypeWrapperUsage
+        tower.operator = new towerConstructor(tower);
     }
 
     // Raise solider target count if there are enemies in the room
@@ -78,7 +87,11 @@ module.exports.loop = function() {
 
     // Run tick on all creeps
     for(creepName in Game.creeps) {
-        creep = Game.creeps[creepName];
-        creep.role.tick();
+        Game.creeps[creepName].role.tick();
+    }
+
+    // Run tick on all towers
+    for(tower in towers) {
+        tower.operator.tick();
     }
 };
