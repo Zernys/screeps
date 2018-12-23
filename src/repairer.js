@@ -5,6 +5,7 @@ var Repairer = function(creep) {
     this.base(creep);
     this.hpThres = Memory.creepTypes.repairer.hpThres;
     this.hpFracThres = Memory.creepTypes.repairer.hpFracThres;
+    Repairer.costMatrix = null; // Temporary, until cost matrix is moved to a room controller
 };
 
 Repairer.prototype = Object.create(Role.prototype);
