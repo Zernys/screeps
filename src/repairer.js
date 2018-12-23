@@ -36,6 +36,7 @@ Repairer.prototype.tick = function() {
                 }
             }
             if(creep.carry.energy === 0) {
+                creep.memory.repairTargetId = null;
                 creep.memory.mode = 'harvest'
             }
             break;
@@ -81,7 +82,11 @@ Repairer.prototype.repair = function() {
             target.hits === target.hitsMax) {
             creep.memory.repairTargetId = null;
         } else {
-            creep.repair(target);
+            var repairResult = creep.repair(target);
+            // Clear target if repairing doesn't work (target might be destroyed, moved, etc)
+            if(repairResult !== OK) {
+                creep.memory.repairTargetId = null;
+            }
         }
     }
 
